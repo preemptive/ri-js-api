@@ -32,6 +32,13 @@
 4. Call additional API functions to record session and feature usage, and to report errors as they occur.
 
 
+# API best practices
+
+The Runtime Intelligence API does not currently maintain session state across page loads. For this reason the API is better suited to monitoring single-page JavaScript applications rather than entire web sites. For reporting information such as website traffic patterns or user flow through a site, it is preferred to use a purpose-built web analytics solution rather than the Runtime Intelligence API.
+
+When adding instrumentation to a web site or web application, you should avoid calling `RI.appStart()` on page load, as this will result in the API recording a distinct application run for each page load. It is best practice to instead call `RI.appStart()` immediately before you first need to report a feature or error message, or once the user takes some action that should logically result in an application run being reported. It is safe to call `RI.appStart()` multiple times - only the first call will perform the setup actions and send the application start message - so it is sufficient to call `RI.appStart()` before *each* such action.
+
+
 # Initialization and session lifecycle
 
 ### RI.appStart( *settings*, *properties* )
@@ -150,6 +157,7 @@ A skeleton plugin might look something like the following:
     }
 })();
 ```
+
 
 [Development Site]: http://pe-js-api.ap2.us
 [Runtime Intelligence]: http://preemptive.com/products/runtime-intelligence/overview
