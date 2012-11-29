@@ -12,31 +12,26 @@
     a. The latest version of the API library:
 
     ```html
-    <script type="text/javascript" src="//cdn.preemptive.com/sdk/latest/ri.min.js"></script>
+    <script type="text/javascript" src="//cdn.preemptive.com/RI/latest/ri.min.js"></script>
     ```
 
     b. The latest revision of a specific version of the API library (eg. 1.0.x):
 
     ```html
-    <script type="text/javascript" src="//cdn.preemptive.com/sdk/1.0/ri.min.js" /></script>
+    <script type="text/javascript" src="//cdn.preemptive.com/RI/1.0/ri.min.js" /></script>
     ```
 
     c. A specific revision of the API library (eg. 1.0.4):
 
     ```html
-    <script type="text/javascript" src="//cdn.preemptive.com/sdk/1.0.4/ri.min.js" /></script>
+    <script type="text/javascript" src="//cdn.preemptive.com/RI/1.0.4/ri.min.js" /></script>
     ```
+    
+    For debugging purposes, you may replace `.min.` with `.src.` in the path to load the un-minified version of the API library.
 
 3. Call the `RI.appStart()` function, passing the settings that you wish to use.
 
 4. Call additional API functions to record session and feature usage, and to report errors as they occur.
-
-
-# API best practices
-
-The Runtime Intelligence API does not currently maintain session state across page loads. For this reason the API is better suited to monitoring single-page JavaScript applications rather than entire web sites. For reporting information such as website traffic patterns or user flow through a site, it is preferred to use a purpose-built web analytics solution rather than the Runtime Intelligence API.
-
-When adding instrumentation to a web site or web application, you should avoid calling `RI.appStart()` on page load, as this will result in the API recording a distinct application run for each page load. It is best practice to instead call `RI.appStart()` immediately before you first need to report a feature or error message, or once the user takes some action that should logically result in an application run being reported. It is safe to call `RI.appStart()` multiple times - only the first call will perform the setup actions and send the application start message - so it is sufficient to call `RI.appStart()` before *each* such action.
 
 
 # Initialization and session lifecycle
@@ -112,13 +107,13 @@ Report an [`Error`][Error] object that has been thrown by the `throw` keyword. T
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the error reporting message.
 
 
-# Attaching arbitrary properties (custom data)
+# Attaching arbitrary properties (extended keys)
 
-All functions have a last, optional parameter named `properties` which is a hash to be used for attaching arbitrary string or numeric properties (known as *custom data*) to the Runtime Intelligence message to be sent. The type - string or numeric - of the property is used by the [Runtime Intelligence portal] when determining what metrics to display. For example, numeric properties will show an average. This is useful for counts of things, but less useful if the value you attach is more arbitrary (for example, a zip code). In these instances, you will want to use the explicit syntax described below to indicate that the portal should interpret these values as strings.
+All functions have a last, optional parameter named `properties` which is a hash to be used for attaching arbitrary string or numeric properties (known as *extended keys*) to the Runtime Intelligence message to be sent. The type - string or numeric - of the property is used by the [Runtime Intelligence portal] when determining what metrics to display. For example, numeric properties will show an average. This is useful for counts of things, but less useful if the value you attach is more arbitrary (for example, a zip code). In these instances, you will want to use the explicit syntax described below to indicate that the portal should interpret these values as strings.
 
-The `properties` hash accepts properties as either `key: value` (where the type of the value is inferred automatically) or `key: object` (where the type of the value is explicitly specified by a property name in the object). If the value is a variable, its value is used as the value. If the value is a function, it will be executed and its return value will be used as the value. If the value is some other non-string/non-number object, it will be converted to a string and that string used as the value. If the value is null or empty string, the custom data property will be omitted.
+The `properties` hash accepts properties as either `key: value` (where the type of the value is inferred automatically) or `key: object` (where the type of the value is explicitly specified by a property name in the object). If the value is a variable, its value is used as the value. If the value is a function, it will be executed and its return value will be used as the value. If the value is some other non-string/non-number object, it will be converted to a string and that string used as the value. If the value is null or empty string, the extended key will be omitted.
 
-The object used in a `key: object` property must contain a single `key: value` pair in the form `{s: "42"}` for a string value or `{n: "42"}` for a numeric value. Any other keys are ignored. If both are specified, the string value (`s` key) is used. String-type explicit properties will always convert the value to a string. Numeric-type explicit properties will attempt to convert the value to a number. If the value does not validate as a number, the custom data property will be omitted.
+The object used in a `key: object` property must contain a `key: value` pair in the form `{s: "42"}` for a string value or `{n: "42"}` for a numeric value. Any other keys are ignored. If both are specified, the string value (`s` key) is used. If a numeric value is selected but the value does not validate as a number, the extended key will be omitted.
 
 
 # Opt-out mechanisms
@@ -134,7 +129,7 @@ While you are free to collect analytics data in any way and in accordance with a
 
 # API plugin development
 
-The Runtime Intelligence API supports the creation of plugins that you can use to automatically add analytics to specific web applications, frameworks, or browser functions. While anyone can create and use their own API plugin, high-quality community plugins that submit pull requests and are accepted into the official [preemptive/ri-js-plugins] project will also be hosted on PreEmptive's CDN and linked to from the official documentation.
+The Runtime Intelligence API supports the creation of plugins that you can use to automatically add analytics to specific web applications, frameworks, or browser functions. While anyone can create and use their own API plugin, high-quality community plugins that submit pull requests and are accepted into the [preemptive/ri-js] project will also be hosted on PreEmptive's CDN (<http://cdn.preemptive.com>).
 
 API plugins are objects that are added as keys on the `RI.plugins` object. Your plugin object will contain parameterless functions that, if defined, will be run during the execution of the core RI API functions. Currently two functions are supported:
 
@@ -158,12 +153,10 @@ A skeleton plugin might look something like the following:
 })();
 ```
 
-
-[Development Site]: http://pe-js-api.ap2.us
 [Runtime Intelligence]: http://preemptive.com/products/runtime-intelligence/overview
 [Runtime Intelligence portal]: http://www.runtimeintelligence.com
 [Sign Up]: http://preemptive.com/landing/eval-request
 [UUID]: http://en.wikipedia.org/wiki/Universally_unique_identifier
 [Error]: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Error
 [Do Not Track]: http://donottrack.us
-[preemptive/ri-js-plugins]: http://github.com/preemptive/ri-js-plugins
+[preemptive/ri-js]: http://github.com/preemptive/ri-js
