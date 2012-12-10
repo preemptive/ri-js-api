@@ -12,19 +12,19 @@
     a. The latest version of the API library:
 
     ```html
-    <script type="text/javascript" src="//cdn.preemptive.com/RI/latest/ri.min.js"></script>
+    <script type="text/javascript" src="//cdn.preemptive.com/sdk/latest/ri.min.js"></script>
     ```
 
     b. The latest revision of a specific version of the API library (eg. 1.0.x):
 
     ```html
-    <script type="text/javascript" src="//cdn.preemptive.com/RI/1.0/ri.min.js" /></script>
+    <script type="text/javascript" src="//cdn.preemptive.com/sdk/1.0/ri.min.js" /></script>
     ```
 
     c. A specific revision of the API library (eg. 1.0.4):
 
     ```html
-    <script type="text/javascript" src="//cdn.preemptive.com/RI/1.0.4/ri.min.js" /></script>
+    <script type="text/javascript" src="//cdn.preemptive.com/sdk/1.0.4/ri.min.js" /></script>
     ```
     
     For debugging purposes, you may replace `.min.` with `.src.` in the path to load the un-minified version of the API library.
