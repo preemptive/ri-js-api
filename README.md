@@ -46,12 +46,30 @@ Initializes the PreEmptive Analytics API and send a session start message. Run l
   * `optIn`      : **Optional**. A variable to access or function to call to retrieve a boolean indicating whether the user has explicitly opted in or out of data collection. You are free to use whatever mechanism you want to provide this value. If omitted, the alternative opt-out mechanisms are checked. If no opt-out value is located, the API defaults to sending analytic message data.
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the session start message.
 
+Sample Code:
+
+	var config={
+		companyId: "9cc594a3-07a7-4273-9579-03f71e81ca6a",
+		appId: "fcc594a3-07a7-4273-9579-03f71e81ca6a",
+		appName="Sample Code",
+		appVersion="1.0"
+	};
+	//optional properties
+	var props={
+		stringprop: "test value",
+		numprop: 1234.5678
+	};
+	RI.appStart(config, props);
+
 
 ## RI.appStop( *properties* )
 Send a session stop message. Run loaded plugins' `stop` functions. Prevent further messages from being sent. Use of this function is optional, and is useful if your application or site has the concept of an explicit session end (such as a 'log out' action).
 
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the session stop message.
 
+Sample Code:
+
+    RI.appStop();
 
 # Feature usage
 
@@ -61,6 +79,9 @@ Send an instantaneous feature message.
 * `featureName` : A string containing the name of the feature to report.
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the feature tick message.
 
+Sample Code:
+
+    RI.featureTick("foobar");
 
 ## RI.featureStart( *featureName*, *properties* )
 Send a feature start message. Paired with a feature stop message of the same name, the duration of the feature use will be calculated. Nested feature starts are supported.
@@ -68,6 +89,9 @@ Send a feature start message. Paired with a feature stop message of the same nam
 * `featureName` : A string containing the name of the feature to report.
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the feature start message.
 
+Sample Code:
+
+    RI.featureStart("sample");
 
 ## RI.featureStop( *featureName*, *properties* )
 Send a feature stop message. This must be paired with a feature start message of the same name. A lone feature stop message will be ignored.
@@ -75,6 +99,9 @@ Send a feature stop message. This must be paired with a feature start message of
 * `featureName` : A string containing the name of the feature to report.
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the feature stop message.
 
+Sample Code:
+
+    RI.featureStop("sample");
 
 # Error reporting
 
@@ -86,6 +113,10 @@ Report an [`Error`][Error] object that has been not been caught within any `catc
 * `comment`    : An optional string containing a free-form comment provided by the user. You are free to gather this information via whatever mechanism you choose. You should collect this information after the error has occurred, so that the end user can choose to provide some details about what they were doing when they experienced the error.
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the error reporting message.
 
+Sample Code:
+
+    RI.errorUncaught(new Error("uh oh.."), "foobar@example.com", "optional comment...");
+
 
 ## RI.errorCaught( *error*, *contact*, *comment*, *properties* )
 Report an [`Error`][Error] object that has been caught within a `catch` block. The error details as well as a stack trace will be captured by the endpoint.
@@ -95,6 +126,14 @@ Report an [`Error`][Error] object that has been caught within a `catch` block. T
 * `comment`    : An optional string containing a free-form comment provided by the user. You are free to gather this information via whatever mechanism you choose. You should collect this information after the error has occurred, so that the end user can choose to provide some details about what they were doing when they experienced the error.
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the error reporting message.
 
+Sample Code:
+    
+    try{
+		throw new Error("something bad happened!");
+	}catch(e){
+	    RI.errorCaught(e, "foobar@example.com", "optional comment...");
+	}
+
 ## RI.errorThrown( *error*, *contact*, *comment*, *properties* )
 Report an [`Error`][Error] object that has been thrown by the `throw` keyword. The error details as well as a stack trace will be captured by the endpoint.
 
@@ -103,6 +142,10 @@ Report an [`Error`][Error] object that has been thrown by the `throw` keyword. T
 * `comment`    : An optional string containing a free-form comment provided by the user. You are free to gather this information via whatever mechanism you choose. You should collect this information after the error has occurred, so that the end user can choose to provide some details about what they were doing when they experienced the error.
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the error reporting message.
 
+Sample Code:
+    
+	var e=new Error("something bad happened!");
+	RI.errorThrown(e, "foobar@example.com", "optional comment...");
 
 # Attaching arbitrary properties (extended keys)
 
@@ -126,30 +169,6 @@ While you are free to collect analytics data in any way and in accordance with a
 3. Collect the user's opt-out preference manually, and pass it to the `RI.appStart()` function by using the `optIn` property of the `settings` object. You can set the value of the `optIn` property to a variable to access or function to call to retrieve a boolean indicating whether the user has explicitly opted in or out of data collection. If a boolean value is provided here (either opt-in or opt-out) it will override both the value of the `RI_sendDisabled` cookie and the user's Do Not Track preference. If the value is `null` or some other type, it will be ignored.
 
 
-# API plugin development
-
-The PreEmptive Analtyics API supports the creation of plugins that you can use to automatically add analytics to specific web applications, frameworks, or browser functions. While anyone can create and use their own API plugin, high-quality community plugins that submit pull requests and are accepted into the [preemptive/ri-js-plugins] project will also be hosted on PreEmptive's CDN (http://cdn.preemptive.com).
-
-API plugins are objects that are added as keys on the `RI.plugins` object. Your plugin object will contain parameterless functions that, if defined, will be run during the execution of the core RI API functions. Currently two functions are supported:
-
-* `start()` : Executed at the end of the `RI.appStart()` function, before the session start message is sent. This can be used to perform any setup before the API starts the RI session and begins sending messages - for example, to instrument functions of other JavaScript libraries, or to register event listeners.
-* `stop()` : Executed at the beginning of the `RI.appStop()` function, before the session stop message is sent. Use this if your plugin requires any cleanup or needs to take any actions before the RI session is stopped.
-
-A skeleton plugin might look something like the following:
-
-
-	(function() {
-		if ( RI && RI.plugins && !RI.plugins.samplePlugin) {
-			RI.plugins.samplePlugin = {
-				start: function() {
-					// Start actions
-				},
-				stop: function() {
-					// Stop actions
-				}
-			};
-		}
-	})();
 
 
 [Runtime Intelligence]: http://preemptive.com/products/runtime-intelligence/overview
