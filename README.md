@@ -146,6 +146,7 @@ Sample Code:
     
 	var e=new Error("something bad happened!");
 	RI.errorThrown(e, "foobar@example.com", "optional comment...");
+	throw e;
 
 # Attaching arbitrary properties (extended keys)
 
@@ -171,6 +172,7 @@ Sample Code:
 		num2: {n: 123.456},
 		num3: numfn
 	};	
+	RI.featureTick("send keys", props);
 
 # Opt-out mechanisms
 
