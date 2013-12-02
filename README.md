@@ -110,7 +110,7 @@ All functions have a last, optional parameter named `properties` which is a hash
 
 The `properties` hash accepts properties as either `key: value` (where the type of the value is inferred automatically) or `key: object` (where the type of the value is explicitly specified by a property name in the object). If the value is a variable, its value is used as the value. If the value is a function, it will be executed and its return value will be used as the value. If the value is some other non-string/non-number object, it will be converted to a string and that string used as the value. If the value is null or empty string, the extended key will be omitted.
 
-The object used in a `key: object` property must contain a `key: value` pair in the form `{s: "42"}` for a string value or `{n: "42"}` for a numeric value. Any other keys are ignored. If both are specified, the string value (`s` key) is used. If a numeric value is selected but the value does not validate as a number, the extended key will be omitted.
+The object used in a `key: object` property must contain a `key: value` pair in the form `{s: "42"}` for a string value or `{n: 42}` for a numeric value. Any other keys are ignored. If both are specified, the string value (`s` key) is used. If a numeric value is selected but the value is not a number, the extended key will be omitted.
 
 
 # Opt-out mechanisms
