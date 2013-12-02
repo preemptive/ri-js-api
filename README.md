@@ -155,6 +155,22 @@ The `properties` hash accepts properties as either `key: value` (where the type 
 
 The object used in a `key: object` property must contain a `key: value` pair in the form `{s: "42"}` for a string value or `{n: 42}` for a numeric value. Any other keys are ignored. If both are specified, the string value (`s` key) is used. If a numeric value is selected but the value is not a number, the extended key will be omitted.
 
+Sample Code:
+
+	var strfn=function(){
+		return "foo bar";
+	};
+	var numfn=function(){
+		return 123.456;
+	};
+	var props={
+		string1: "foo bar",
+		string2: {s: "foo bar"},
+		string3: strfn,
+		num1: 123.456,
+		num2: {n: 123.456},
+		num3: numfn
+	};	
 
 # Opt-out mechanisms
 
