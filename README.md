@@ -51,8 +51,8 @@ Sample Code:
 	var config={
 		companyId: "9cc594a3-07a7-4273-9579-03f71e81ca6a",
 		appId: "fcc594a3-07a7-4273-9579-03f71e81ca6a",
-		appName="Sample Code",
-		appVersion="1.0"
+		appName: "Sample Code",
+		appVersion: "1.0"
 	};
 	//optional properties
 	var props={
