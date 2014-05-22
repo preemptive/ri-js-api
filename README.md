@@ -1,6 +1,6 @@
 # Introduction
 
-PreEmptive Analytics is a suite of products that allows you to gather information about how your application or site is used as your users interact with it, in real time. This data can be sent to different endpoints. By default, the API sends the data to the [Runtime Intelligence portal], which allows for aggregation and analysis. 
+PreEmptive Analytics is a suite of products that allows you to gather information about how your application or site is used as your users interact with it, in real time. This data can be sent to different endpoints. By default, the API sends the data to the [Runtime Intelligence portal], which allows for aggregation and analysis. You can obtain a copy of the license for this product at http://www.preemptive.com/eula or by downloading the package from the downloads page at https://www.preemptive.com/my-account/downloads.
 
 # Including instrumentation in your site
 
