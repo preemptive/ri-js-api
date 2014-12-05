@@ -1,6 +1,6 @@
 # Introduction
 
-PreEmptive Analytics is a suite of products that allows you to gather information about how your application or site is used as your users interact with it, in real time. This data can be sent to different endpoints. By default, the API sends the data to the [Runtime Intelligence portal], which allows for aggregation and analysis. You can obtain a copy of the license for this product at http://www.preemptive.com/eula or by downloading the package from the downloads page at https://www.preemptive.com/my-account/downloads.
+PreEmptive Analytics is a suite of products that allows you to gather information about how your application or site is used as your users interact with it, in real time. This data can be sent to different endpoints. By default, the API sends the data to the [PreEmptive Analytics Commercial Endpoint], which allows for aggregation and analysis. You can obtain a copy of the license for this product at http://www.preemptive.com/eula or by downloading the package from the downloads page at https://www.preemptive.com/my-account/downloads.
 
 # Including instrumentation in your site
 
@@ -12,16 +12,16 @@ PreEmptive Analytics is a suite of products that allows you to gather informatio
         <script type="text/javascript" src="//cdn.preemptive.com/sdk/latest/ri.min.js"></script>
 
 
-    b. The latest revision of a specific version of the API library (eg. 1.0.x):
+    b. The latest revision of a specific version of the API library (eg. 1.1.x):
 
 
-        <script type="text/javascript" src="//cdn.preemptive.com/sdk/1.0/ri.min.js" /></script>
+        <script type="text/javascript" src="//cdn.preemptive.com/sdk/1.1/ri.min.js" /></script>
 
 
-    c. A specific revision of the API library (eg. 1.0.4):
+    c. A specific revision of the API library (eg. 1.1.0):
 
 
-        <script type="text/javascript" src="//cdn.preemptive.com/sdk/1.0.4/ri.min.js" /></script>
+        <script type="text/javascript" src="//cdn.preemptive.com/sdk/1.1.0/ri.min.js" /></script>
 
     
     For debugging purposes, you may replace `.min.` with `.src.` in the path to load the un-minified version of the API library.
@@ -37,19 +37,24 @@ PreEmptive Analytics is a suite of products that allows you to gather informatio
 Initializes the PreEmptive Analytics API and send a session start message. Run loaded plugins' `start` functions. This function must be called before any other messages can be sent.
 
 * `settings` : An object containing initialization settings. Supported keys are:
-  * `companyId`  : **Required**. Your company ID string. If using the Runtime Intelligence portal, this is assigned to you.
+  * `companyId`  : **Required**. A self-generated [UUID] string to represent the unique business entity sending messages. 
+  * `companyName` : **Optional**. Your company name string.  
   * `appId`      : **Required**. A self-generated [UUID] string to represent this application or site.
   * `appName`    : **Required**. A string containing the name of this application or site.
   * `appVersion` : **Required**. A string containing the version number of this application or site.
-  * `endPoint`   : **Optional**. A URI string specifying the endpoint to use when sending messages. If omitted, the default endpoint URI will send messages to the commercial Runtime Intelligence endpoint.
+  * `endPoint`   : **Optional**. A URI string specifying the endpoint to use when sending messages. If omitted, the default endpoint URI will send messages to the PreEmptive Analytics Commercial Endpoint.
   * `instanceId` : **Optional**. A variable to access or function to call to retrieve a user-specific identifier (such as a hashed login name or serial number) for compiling usage data by individual user. If omitted, no user-specific data is collected or displayed.
   * `optIn`      : **Optional**. A variable to access or function to call to retrieve a boolean indicating whether the user has explicitly opted in or out of data collection. You are free to use whatever mechanism you want to provide this value. If omitted, the alternative opt-out mechanisms are checked. If no opt-out value is located, the API defaults to sending analytic message data.
+  * `sessionId` : **Optional**. When set to a value returned from a previous call to appStart, the API initialization is performed within the context of the indicated session. No start messages are sent. See [Session Management] for an example.
 * `properties` : An optional object containing arbitrary string or numeric properties to attach to the session start message.
+
+This function returns a session Id that may be used for subsequent calls to appStart. See [Session Management] for an example.
 
 Sample Code:
 
 	var config={
 		companyId: "9cc594a3-07a7-4273-9579-03f71e81ca6a",
+		companyName: "Sample Company",
 		appId: "fcc594a3-07a7-4273-9579-03f71e81ca6a",
 		appName: "Sample Code",
 		appVersion: "1.0"
@@ -150,7 +155,7 @@ Sample Code:
 
 # Attaching arbitrary properties (extended keys)
 
-All functions have a last, optional parameter named `properties` which is a hash to be used for attaching arbitrary string or numeric properties (known as *extended keys*) to the message to be sent. The type - string or numeric - of the property is used by the [Runtime Intelligence portal] when determining what metrics to display. For example, numeric properties will show an average. This is useful for counts of things, but less useful if the value you attach is more arbitrary (for example, a zip code). In these instances, you will want to use the explicit syntax described below to indicate that the portal should interpret these values as strings.
+All functions have a last, optional parameter named `properties` which is a hash to be used for attaching arbitrary string or numeric properties (known as *extended keys*) to the message to be sent. The type - string or numeric - of the property is used by the [PreEmptive Analytics Commercial Endpoint] when determining what metrics to display. For example, numeric properties will show an average. This is useful for counts of things, but less useful if the value you attach is more arbitrary (for example, a zip code). In these instances, you will want to use the explicit syntax described below to indicate that the portal should interpret these values as strings.
 
 The `properties` hash accepts properties as either `key: value` (where the type of the value is inferred automatically) or `key: object` (where the type of the value is explicitly specified by a property name in the object). If the value is a variable, its value is used as the value. If the value is a function, it will be executed and its return value will be used as the value. If the value is some other non-string/non-number object, it will be converted to a string and that string used as the value. If the value is null or empty string, the extended key will be omitted.
 
@@ -180,19 +185,40 @@ While you are free to collect analytics data in any way and in accordance with a
 
 1. The PreEmptive Analytics API will disable data collection if the user has enabled the [Do Not Track] feature available in many modern browsers. The browser must support accessing the value of the Do Not Track preference via Javascript. If the user is using IE8+ or higher and has enabled InPrivate Filtering, data collection will also be disabled. If you wish to provide more inclusive support for the Do Not Track preference, you can capture the value of the **`DNT`** HTTP header in your server-side code and provide it to the API via one of the other two opt-out mechanisms.
 
- Note: The PreEmptive [Runtime Intelligence] endpoint also respects the **`DNT`** HTTP header and will discard any message that has it enabled. It is recommended that developers disable their browser's [Do Not Track] feature while adding analytics to their applications.
+ Note: PreEmptive Analytics For Team Foundation Server respects the **`DNT`** HTTP header and will discard any message that has it enabled. It is recommended that developers disable their browser's [Do Not Track] feature while adding analytics to their applications.
 
-2. Set a cookie named `RI_sendDisabled` to either `0` for opt-in or `1` for opt-out. A value of `1` (for opt-in) will override the user's Do Not Track preference, if specified.
+2. Set a cookie named `RI_sendDisabled` to either `0` for opt-in or `1` for opt-out. A value of `0` (for opt-in) will override the user's Do Not Track preference, if specified.
 
 3. Collect the user's opt-out preference manually, and pass it to the `RI.appStart()` function by using the `optIn` property of the `settings` object. You can set the value of the `optIn` property to a variable to access or function to call to retrieve a boolean indicating whether the user has explicitly opted in or out of data collection. If a boolean value is provided here (either opt-in or opt-out) it will override both the value of the `RI_sendDisabled` cookie and the user's Do Not Track preference. If the value is `null` or some other type, it will be ignored.
 
+<a name="SessionManagement"></a>
+# Session management
+
+Often, you will want to track web application user sessions across multiple pages in your application. To do this, you can store the API's sessionId on the client, and use it to re-initialize the API on each page. When the API is initialized with a sessionId, it will not send start messages at initialization time, and all other messages will contain the given session Id.
+
+Sample Code:
+
+				// use sessionStorage to cache the sessionId in the broswer.
+				var sessionId = null;
+				if ( sessionStorage.getItem("PA_API_SESSION") ) {
+					sessionId = sessionStorage.getItem('PA_API_SESSION');
+				}				
+				sessionId = RI.appStart({
+					companyId: "9cc594a3-07a7-4273-9579-03f71e81ca6a",
+					companyName: "Sample Company",
+					appId: "fcc594a3-07a7-4273-9579-03f71e81ca6a",
+					appName: "Sample Code",
+					appVersion: "1.0",
+					sessionId : sessionId
+				});
+				// store the sessionID to be used for subsequent initializations
+				sessionStorage.setItem('PA_API_SESSION',sessionId);
 
 
 
-[Runtime Intelligence]: http://preemptive.com/products/runtime-intelligence/overview
-[Runtime Intelligence portal]: http://www.runtimeintelligence.com
+[PreEmptive Analytics Commercial Endpoint]: http://www.preemptive.com/pa
 [Sign Up]: http://preemptive.com/landing/eval-request
 [UUID]: http://en.wikipedia.org/wiki/Universally_unique_identifier
 [Error]: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Error
 [Do Not Track]: http://donottrack.us
-[preemptive/ri-js-plugins]: http://github.com/preemptive/ri-js-plugins
+[Session Management]: #SessionManagement
